@@ -3,4 +3,5 @@
 To run the program you need to modify the display.py file from the display package when installing it. Add this line to the beginning of the start function:
 
 def start(fen=''):
+  
   global gameboard
