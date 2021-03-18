@@ -2,7 +2,7 @@ import chess
 from chessboard import display
 import operator
 
-#Score pieces based on their position. Piece tables can be found online
+#Score pieces based on their position. Piece square tables can be found online
 pawnTable = [
     0, 0, 0, 0, 0, 0, 0, 0,
     5, 10, 10, -20, -20, 10, 10, 5,
@@ -63,10 +63,10 @@ kingTable = [
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30]
 
-def evaluateBoard():
+def evaluateScore():
     
     if board.is_checkmate():
-        if board.turn:
+        if board.turn: #If white turn, return -9999 meaning black won. Else return 9999 meaning white won
             return -9999
         else:
             return 9999
@@ -75,7 +75,14 @@ def evaluateBoard():
     elif board.is_insufficient_material():
         return 0
 
-    #Number of each pieces
+    pawnScore = sum([pawnTable[i] for i in board.pieces(chess.PAWN, chess.WHITE)]) - sum([pawnTable[chess.square_mirror(i)] for i in board.pieces(chess.PAWN, chess.BLACK)])
+    knightScore = sum([knightTable[i] for i in board.pieces(chess.KNIGHT, chess.WHITE)]) - sum([knightTable[chess.square_mirror(i)] for i in board.pieces(chess.KNIGHT, chess.BLACK)])
+    bishopScore = sum([bishopTable[i] for i in board.pieces(chess.BISHOP, chess.WHITE)]) - sum([bishopTable[chess.square_mirror(i)] for i in board.pieces(chess.BISHOP, chess.BLACK)])
+    rookScore = sum([rookTable[i] for i in board.pieces(chess.ROOK, chess.WHITE)]) - sum([rookTable[chess.square_mirror(i)] for i in board.pieces(chess.ROOK, chess.BLACK)])
+    queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
+    kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
+   
+    #Number of each pieces based on current board position
     whitePawn = len(board.pieces(chess.PAWN, chess.WHITE))
     blackPawn = len(board.pieces(chess.PAWN, chess.BLACK))
     whiteKnight = len(board.pieces(chess.KNIGHT, chess.WHITE))
@@ -87,96 +94,72 @@ def evaluateBoard():
     whiteQueen = len(board.pieces(chess.QUEEN, chess.WHITE))
     blackQueen = len(board.pieces(chess.QUEEN, chess.BLACK))
 
-    #Pawns are worth 100, knights worth 320, bishops worth 330, rooks worth 500 and queens worth 900
-    material = 100 * (whitePawn - blackPawn) + 320 * (whiteKnight - blackKnight) + 330 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
+    #Pawns are worth 100, knights worth 300, bishops worth 310, rooks worth 500 and queens worth 900
+    piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 310 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
+    totalScore = piecesScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
 
-    pawnScore = sum([pawnTable[i] for i in board.pieces(chess.PAWN, chess.WHITE)])
-    pawnScore -= sum([pawnTable[chess.square_mirror(i)] for i in board.pieces(chess.PAWN, chess.BLACK)])
-
-    knightScore = sum([knightTable[i] for i in board.pieces(chess.KNIGHT, chess.WHITE)])
-    knightScore -= sum([knightTable[chess.square_mirror(i)] for i in board.pieces(chess.KNIGHT, chess.BLACK)])
-
-    bishopScore = sum([bishopTable[i] for i in board.pieces(chess.BISHOP, chess.WHITE)])
-    bishopScore -= sum([bishopTable[chess.square_mirror(i)] for i in board.pieces(chess.BISHOP, chess.BLACK)])
-
-    rookScore = sum([rookTable[i] for i in board.pieces(chess.ROOK, chess.WHITE)])
-    rookScore -= sum([rookTable[chess.square_mirror(i)] for i in board.pieces(chess.ROOK, chess.BLACK)])
-
-    queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)])
-    queenScore -= sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
-
-    kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)])
-    kingScore -= sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
-
-    evaluation = material + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
-
-    if board.turn:
-        return evaluation
+    if board.turn: #Return positive score if white turn. Negative score if black turn
+        return totalScore
     else:
-        return -evaluation
+        return -totalScore
 
-# Search best move using minimax and alphabeta algorithm with negamax implementation
+#Search best move using minimax and alphabeta algorithm with negamax implementation
 def negamax(alpha, beta, depth):
 
     if depth == 0:
         return quiescence(alpha, beta)
 
-    bestScore = -9999
+    bestScore = -9999 #Initialize bestScore as worst possible score to begin with
     moveValuePair = sortMoves(False)
 
     for move in moveValuePair:
         board.push(move)
-        score = -negamax(-beta, -alpha, depth - 1)
+        moveScore = -negamax(-beta, -alpha, depth - 1)
         board.pop()
-        if score >= beta:
-            return score
-        if score > bestScore:
-            bestScore = score
-        if score > alpha:
-            alpha = score
+        bestScore = max(bestScore, moveScore)
+        alpha = max(alpha, moveScore)
+        if beta <= alpha:
+            return bestScore
 
     return bestScore
 
 #Used to get rid of horizon effect
 def quiescence(alpha, beta):
 
-    score = evaluateBoard()
-
-    if score >= beta:
-        return beta
-
-    if score > alpha:
-        alpha = score
+    moveScore = evaluateScore()
+    alpha = max(alpha, moveScore)
+    
+    if beta <= alpha:
+            return moveScore
 
     moveValuePair = sortMoves(True)
 
     for move in moveValuePair:
         board.push(move)    
-        score = -quiescence(-beta, -alpha)
+        moveScore = -quiescence(-beta, -alpha)
         board.pop()
-        if score >= beta:
-            return beta
-        elif score > alpha:
-            alpha = score
+        alpha = max(alpha, moveScore)
+        if beta <= alpha:
+            return moveScore
 
     return alpha
 
-#Sort moves in ascending order based on their board value
+#Sort moves in ascending order based on their score
 def sortMoves(capturesOnly):
     
     moveValuePair = {}
 
-    if not capturesOnly:
-        for move in board.legal_moves:
-            board.push(move)
-            moveValuePair[move] = evaluateBoard()
-            board.pop()
-    else:
+    if capturesOnly:
         for move in board.legal_moves:
             if board.is_capture(move):
                 board.push(move)
-                moveValuePair[move] = evaluateBoard()
+                moveValuePair[move] = evaluateScore()
                 board.pop()
+    else:
+        for move in board.legal_moves:
+            board.push(move)
+            moveValuePair[move] = evaluateScore()
+            board.pop()
 
     sortMoveValuePair = dict(sorted(moveValuePair.items(), key = operator.itemgetter(1)))
 
@@ -184,35 +167,41 @@ def sortMoves(capturesOnly):
 
 def selectMove(depth):
     
-    bestValue = -99999
-    alpha = -100000
-    beta = 100000
+    bestScore = -99999 #Initialize bestScore as worst possible score to begin with
+    alpha = -99999 #Alpha is the bestScore for the maximizing player (White). Initialize as worst possible score to begin with
+    beta = 99999 #Beta is the bestScore for the minimizing player (Black). Initialize as worst possible score to begin with
 
     for move in board.legal_moves:
         board.push(move)
-        boardValue = -negamax(-beta, -alpha, depth - 1)
+        moveScore = -negamax(-beta, -alpha, depth - 1)
         board.pop()
-        if boardValue > bestValue:
-            bestValue = boardValue
+        if moveScore > bestScore:
+            bestScore = moveScore
             bestMove = move
-        if boardValue > alpha:
-            alpha = boardValue
+        alpha = max(alpha, moveScore)
 
     return bestMove
 
 #Main Function
 board = chess.Board()
 display.start(board.fen())
+printEndMessage = False
 
 while not display.checkForQuit():
     if not board.is_game_over():
-        #Uncomment if you want to play against AI where you type your move
+        #Uncomment if you want to play vs AI by typing move. A move is starting square of piece you want to move followed by square where you want piece to move to. Ex: e2e4 moves pawn on e2 to e4
         #playerMove = input()
-        #board.push_san(playerMove)
+        #board.push(playerMove)
         #display.update(board.fen())
-        move = selectMove(3)
-        board.push(move)
+        AImove = selectMove(3) #Increase number for harder AI at the cost of it taking longer
+        board.push(AImove)
         display.update(board.fen())
-        print(move)
+        print(AImove)
+    elif not printEndMessage:
+        if board.turn:
+            print("BLACK WON!")
+        else:
+            print("WHITE WON!")
+        printEndMessage = True
 
 display.terminate()
