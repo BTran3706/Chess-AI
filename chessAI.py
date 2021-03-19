@@ -166,10 +166,9 @@ def sortMoves(capturesOnly):
 
 def selectMove(depth):
     
-    bestMove = chess.Move.null()
-    bestScore = -9999 #Initialize bestScore as worst possible score in terms of White
-    alpha = -9999 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible score in terms of White
-    beta = 9999 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible score in terms of Black
+    bestScore = -99999 #Initialize bestScore as worst possible score in terms of White
+    alpha = -100000 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible score in terms of White
+    beta = 100000 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible score in terms of Black
 
     for move in board.legal_moves:
         board.push(move)
