@@ -1,6 +1,5 @@
 import chess
 from chessboard import display
-import operator
 
 #Score pieces based on their position. Piece square tables can be found online
 pawnTable = [
@@ -45,7 +44,7 @@ rookTable = [
 
 queenTable = [
     -20, -10, -10, -5, -5, -10, -10, -20,
-    -10, 0, 0, 0, 0, 0, 0, -10,
+    -10, 0, 5, 0, 0, 0, 0, -10,
     -10, 5, 5, 5, 5, 5, 0, -10,
     0, 0, 5, 5, 5, 5, 0, -5,
     -5, 0, 5, 5, 5, 5, 0, -5,
@@ -82,7 +81,7 @@ def evaluateScore():
     queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
     kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
    
-    #Number of each pieces based on current board position
+    #Number of each pieces based on current board state
     whitePawn = len(board.pieces(chess.PAWN, chess.WHITE))
     blackPawn = len(board.pieces(chess.PAWN, chess.BLACK))
     whiteKnight = len(board.pieces(chess.KNIGHT, chess.WHITE))
@@ -94,7 +93,7 @@ def evaluateScore():
     whiteQueen = len(board.pieces(chess.QUEEN, chess.WHITE))
     blackQueen = len(board.pieces(chess.QUEEN, chess.BLACK))
 
-    #Pawns are worth 100, knights worth 300, bishops worth 310, rooks worth 500 and queens worth 900
+    #Pawns are worth 100, knights 300, bishops 310, rooks 500 and queen 900
     piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 310 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
     totalScore = piecesScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
 
@@ -109,7 +108,7 @@ def negamax(alpha, beta, depth):
     if depth == 0:
         return quiescence(alpha, beta)
 
-    bestScore = -9999 #Initialize bestScore as worst possible score to begin with
+    bestScore = -9999 #Initialize bestScore as worst possible score in terms of White
     moveValuePair = sortMoves(False)
 
     for move in moveValuePair:
@@ -161,15 +160,16 @@ def sortMoves(capturesOnly):
             moveValuePair[move] = evaluateScore()
             board.pop()
 
-    sortMoveValuePair = dict(sorted(moveValuePair.items(), key = operator.itemgetter(1)))
+    sortMoveValuePair = dict(sorted(moveValuePair.items(), key = lambda item: item[1]))
 
     return sortMoveValuePair
 
 def selectMove(depth):
     
-    bestScore = -99999 #Initialize bestScore as worst possible score to begin with
-    alpha = -99999 #Alpha is the bestScore for the maximizing player (White). Initialize as worst possible score to begin with
-    beta = 99999 #Beta is the bestScore for the minimizing player (Black). Initialize as worst possible score to begin with
+    bestMove = chess.Move.null()
+    bestScore = -9999 #Initialize bestScore as worst possible score in terms of White
+    alpha = -9999 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible score in terms of White
+    beta = 9999 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible score in terms of Black
 
     for move in board.legal_moves:
         board.push(move)
