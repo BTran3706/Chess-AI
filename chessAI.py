@@ -69,18 +69,7 @@ def evaluateScore():
             return -9999
         else:
             return 9999
-    elif board.is_stalemate():
-        return 0
-    elif board.is_insufficient_material():
-        return 0
 
-    pawnScore = sum([pawnTable[i] for i in board.pieces(chess.PAWN, chess.WHITE)]) - sum([pawnTable[chess.square_mirror(i)] for i in board.pieces(chess.PAWN, chess.BLACK)])
-    knightScore = sum([knightTable[i] for i in board.pieces(chess.KNIGHT, chess.WHITE)]) - sum([knightTable[chess.square_mirror(i)] for i in board.pieces(chess.KNIGHT, chess.BLACK)])
-    bishopScore = sum([bishopTable[i] for i in board.pieces(chess.BISHOP, chess.WHITE)]) - sum([bishopTable[chess.square_mirror(i)] for i in board.pieces(chess.BISHOP, chess.BLACK)])
-    rookScore = sum([rookTable[i] for i in board.pieces(chess.ROOK, chess.WHITE)]) - sum([rookTable[chess.square_mirror(i)] for i in board.pieces(chess.ROOK, chess.BLACK)])
-    queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
-    kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
-   
     #Number of each pieces based on current board state
     whitePawn = len(board.pieces(chess.PAWN, chess.WHITE))
     blackPawn = len(board.pieces(chess.PAWN, chess.BLACK))
@@ -93,8 +82,15 @@ def evaluateScore():
     whiteQueen = len(board.pieces(chess.QUEEN, chess.WHITE))
     blackQueen = len(board.pieces(chess.QUEEN, chess.BLACK))
 
-    #Pawns are worth 100, knights 300, bishops 310, rooks 500 and queen 900
-    piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 310 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
+    pawnScore = sum([pawnTable[i] for i in board.pieces(chess.PAWN, chess.WHITE)]) - sum([pawnTable[chess.square_mirror(i)] for i in board.pieces(chess.PAWN, chess.BLACK)])
+    knightScore = sum([knightTable[i] for i in board.pieces(chess.KNIGHT, chess.WHITE)]) - sum([knightTable[chess.square_mirror(i)] for i in board.pieces(chess.KNIGHT, chess.BLACK)])
+    bishopScore = sum([bishopTable[i] for i in board.pieces(chess.BISHOP, chess.WHITE)]) - sum([bishopTable[chess.square_mirror(i)] for i in board.pieces(chess.BISHOP, chess.BLACK)])
+    rookScore = sum([rookTable[i] for i in board.pieces(chess.ROOK, chess.WHITE)]) - sum([rookTable[chess.square_mirror(i)] for i in board.pieces(chess.ROOK, chess.BLACK)])
+    queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
+    kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
+
+    #Pawns are worth 100, knights 300, bishops 375, rooks 500 and queen 900
+    piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 375 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
     totalScore = piecesScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
 
     if board.turn: #Return positive score if white turn. Negative score if black turn
@@ -129,7 +125,7 @@ def quiescence(alpha, beta):
     alpha = max(alpha, moveScore)
     
     if beta <= alpha:
-            return moveScore
+        return moveScore
 
     moveValuePair = sortMoves(True)
 
@@ -165,14 +161,28 @@ def sortMoves(capturesOnly):
     return sortMoveValuePair
 
 def selectMove(depth):
-    
+
     bestScore = -99999 #Initialize bestScore as worst possible score in terms of White
     alpha = -100000 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible score in terms of White
     beta = 100000 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible score in terms of Black
 
     for move in board.legal_moves:
-        board.push(move)
-        moveScore = -negamax(-beta, -alpha, depth - 1)
+        if board.is_castling(move):
+            board.push(move)
+            moveScore = -negamax(-beta, -alpha, depth - 1)
+        else:
+            if board.turn:
+                castleRightsBefore = board.has_castling_rights(chess.WHITE)
+                board.push(move)
+                castleRightsAfter = board.has_castling_rights(chess.WHITE)
+            else:
+                castleRightsBefore = board.has_castling_rights(chess.BLACK)
+                board.push(move)
+                castleRightsAfter = board.has_castling_rights(chess.BLACK)
+            if castleRightsBefore and not castleRightsAfter: #Subtract 50 (Half a pawn) for moves that prevents castling
+                moveScore = -negamax(-beta, -alpha, depth - 1) - 50
+            else:
+                moveScore = -negamax(-beta, -alpha, depth - 1)
         board.pop()
         if moveScore > bestScore:
             bestScore = moveScore
@@ -192,15 +202,18 @@ while not display.checkForQuit():
         #playerMove = input()
         #board.push(playerMove)
         #display.update(board.fen())
-        AImove = selectMove(3) #Increase number for harder AI at the cost of it taking longer
+        AImove = selectMove(1) #Increase number for harder AI at the cost of it taking longer
         board.push(AImove)
         display.update(board.fen())
         print(AImove)
     elif not printEndMessage:
-        if board.turn:
-            print("BLACK WON!")
+        if board.is_checkmate():
+            if board.turn:
+                print("BLACK WON!")
+            else:
+                print("WHITE WON!")
         else:
-            print("WHITE WON!")
+            print("STALEMATE/DRAW!")
         printEndMessage = True
 
 display.terminate()
