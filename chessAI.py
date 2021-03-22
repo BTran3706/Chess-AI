@@ -62,6 +62,16 @@ kingTable = [
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30]
 
+kingEndTable = [
+    -50, -30, -30, -30, -30, -30, -30, -50,
+    -30, -30, 0, 0, 0, 0, -30,-30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 30, 40, 40, 30, -10, -30,
+    -30, -10, 20, 30, 30, 20, -10, -30,
+    -30, -20, -10, 0, 0, -10, -20, -30,
+    -50, -40, -30, -20, -20, -30, -40, -50]
+
 def evaluateScore():
     
     if board.is_checkmate():
@@ -87,11 +97,16 @@ def evaluateScore():
     bishopScore = sum([bishopTable[i] for i in board.pieces(chess.BISHOP, chess.WHITE)]) - sum([bishopTable[chess.square_mirror(i)] for i in board.pieces(chess.BISHOP, chess.BLACK)])
     rookScore = sum([rookTable[i] for i in board.pieces(chess.ROOK, chess.WHITE)]) - sum([rookTable[chess.square_mirror(i)] for i in board.pieces(chess.ROOK, chess.BLACK)])
     queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
-    kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
+    
+    if 100 * whitePawn + 300 * whiteKnight + 300 * whiteBishop + 500 * whiteRook + 900 * whiteQueen < 1400 and 100 * blackPawn + 300 * blackKnight + 300 * blackBishop + 500 * blackRook + 900 * blackQueen < 1400:
+        #If materialScore on both sides are less than 1400 (queen + rook), use kingEndTable
+        kingScore = sum([kingEndTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingEndTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
+    else:
+        kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
 
     #Pawns are worth 100, knights 300, bishops 375, rooks 500 and queen 900
-    piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 375 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
-    totalScore = piecesScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
+    materialScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 375 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
+    totalScore = materialScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
 
     if board.turn: #Return positive score if White turn. Negative score if Black turn
         return totalScore
@@ -222,7 +237,7 @@ while not display.checkForQuit():
             else:
                 print("WHITE WON!")
         else:
-            print("DRAW!")
+            print("STALEMATE/DRAW!")
         printEndMessage = True
 
 display.terminate()
