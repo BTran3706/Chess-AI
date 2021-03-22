@@ -65,7 +65,7 @@ kingTable = [
 def evaluateScore():
     
     if board.is_checkmate():
-        if board.turn: #If white turn, return -9999 meaning black won. Else return 9999 meaning white won
+        if board.turn: #If White turn, return -9999 meaning Black won. Else return 9999 meaning White won
             return -9999
         else:
             return 9999
@@ -93,7 +93,7 @@ def evaluateScore():
     piecesScore = 100 * (whitePawn - blackPawn) + 300 * (whiteKnight - blackKnight) + 375 * (whiteBishop - blackBishop) + 500 * (whiteRook - blackRook) + 900 * (whiteQueen - blackQueen)
     totalScore = piecesScore + pawnScore + knightScore + bishopScore + rookScore + queenScore + kingScore
 
-    if board.turn: #Return positive score if white turn. Negative score if black turn
+    if board.turn: #Return positive score if White turn. Negative score if Black turn
         return totalScore
     else:
         return -totalScore
@@ -104,7 +104,7 @@ def negamax(alpha, beta, depth):
     if depth == 0:
         return quiescence(alpha, beta)
 
-    bestScore = -9999 #Initialize bestScore as worst possible score in terms of White
+    bestScore = -9999 #Initialize bestScore as worst possible White score
     moveValuePair = sortMoves(False)
 
     for move in moveValuePair:
@@ -162,24 +162,33 @@ def sortMoves(capturesOnly):
 
 def selectMove(depth):
 
-    bestScore = -99999 #Initialize bestScore as worst possible score in terms of White
-    alpha = -100000 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible score in terms of White
-    beta = 100000 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible score in terms of Black
+    bestScore = -99999 #Initialize bestScore as worst possible White score
+    alpha = -100000 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible White score
+    beta = 100000 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible Black score
 
     for move in board.legal_moves:
-        if board.is_castling(move):
+        if board.is_castling(move): #Don't need to check castling rights if the move is a castle
             board.push(move)
-            moveScore = -negamax(-beta, -alpha, depth - 1)
+            if board.turn and len(board.pieces(chess.BISHOP, chess.BLACK)) == 1: #Subtract 50 (Value of half pawn) if AI has only 1 bishop
+                moveScore = -negamax(-beta, -alpha, depth - 1) - 50
+            elif not board.turn and len(board.pieces(chess.BISHOP, chess.WHITE)) == 1:
+                moveScore = -negamax(-beta, -alpha, depth - 1) - 50
+            else:
+                moveScore = -negamax(-beta, -alpha, depth - 1)
         else:
             if board.turn:
-                castleRightsBefore = board.has_castling_rights(chess.WHITE)
+                castleRightsBefore = board.has_castling_rights(chess.WHITE) #Compare castle rights before and after. If before is true and after is false then the move prevents castling
                 board.push(move)
                 castleRightsAfter = board.has_castling_rights(chess.WHITE)
+                numBishops = len(board.pieces(chess.BISHOP, chess.WHITE))
             else:
                 castleRightsBefore = board.has_castling_rights(chess.BLACK)
                 board.push(move)
                 castleRightsAfter = board.has_castling_rights(chess.BLACK)
-            if castleRightsBefore and not castleRightsAfter: #Subtract 50 (Half a pawn) for moves that prevents castling
+                numBishops = len(board.pieces(chess.BISHOP, chess.BLACK))
+            if numBishops == 1 and castleRightsBefore and not castleRightsAfter: #Subtract 100 (Value of 1 pawn) if AI has only 1 bishop and if the move prevents castling
+                moveScore = -negamax(-beta, -alpha, depth - 1) - 100
+            elif castleRightsBefore and not castleRightsAfter: #Subtract 50 (Value of half pawn) if the move prevents castling
                 moveScore = -negamax(-beta, -alpha, depth - 1) - 50
             else:
                 moveScore = -negamax(-beta, -alpha, depth - 1)
@@ -202,7 +211,7 @@ while not display.checkForQuit():
         #playerMove = input()
         #board.push(playerMove)
         #display.update(board.fen())
-        AImove = selectMove(1) #Increase number for harder AI at the cost of it taking longer
+        AImove = selectMove(3) #Increase number for harder AI at the cost of it taking longer
         board.push(AImove)
         display.update(board.fen())
         print(AImove)
@@ -213,7 +222,7 @@ while not display.checkForQuit():
             else:
                 print("WHITE WON!")
         else:
-            print("STALEMATE/DRAW!")
+            print("DRAW!")
         printEndMessage = True
 
 display.terminate()
