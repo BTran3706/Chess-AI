@@ -1,77 +1,6 @@
 import chess
 from chessboard import display
 
-#Score pieces based on their position. Piece square tables can be found online
-pawnTable = [
-    0, 0, 0, 0, 0, 0, 0, 0,
-    5, 10, 10, -20, -20, 10, 10, 5,
-    5, -5, -10, 0, 0, -10, -5, 5,
-    0, 0, 0, 20, 20, 0, 0, 0,
-    5, 5, 10, 25, 25, 10, 5, 5,
-    10, 10, 20, 30, 30, 20, 10, 10,
-    50, 50, 50, 50, 50, 50, 50, 50,
-    0, 0, 0, 0, 0, 0, 0, 0]
-
-knightTable = [
-    -50, -40, -30, -30, -30, -30, -40, -50,
-    -40, -20, 0, 5, 5, 0, -20, -40,
-    -30, 5, 10, 15, 15, 10, 5, -30,
-    -30, 0, 15, 20, 20, 15, 0, -30,
-    -30, 5, 15, 20, 20, 15, 5, -30,
-    -30, 0, 10, 15, 15, 10, 0, -30,
-    -40, -20, 0, 0, 0, 0, -20, -40,
-    -50, -40, -30, -30, -30, -30, -40, -50]
-
-bishopTable = [
-    -20, -10, -10, -10, -10, -10, -10, -20,
-    -10, 5, 0, 0, 0, 0, 5, -10,
-    -10, 10, 10, 10, 10, 10, 10, -10,
-    -10, 0, 10, 10, 10, 10, 0, -10,
-    -10, 5, 5, 10, 10, 5, 5, -10,
-    -10, 0, 5, 10, 10, 5, 0, -10,
-    -10, 0, 0, 0, 0, 0, 0, -10,
-    -20, -10, -10, -10, -10, -10, -10, -20]
-
-rookTable = [
-    0, 0, 0, 5, 5, 0, 0, 0,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    -5, 0, 0, 0, 0, 0, 0, -5,
-    5, 10, 10, 10, 10, 10, 10, 5,
-    0, 0, 0, 0, 0, 0, 0, 0]
-
-queenTable = [
-    -20, -10, -10, -5, -5, -10, -10, -20,
-    -10, 0, 5, 0, 0, 0, 0, -10,
-    -10, 5, 5, 5, 5, 5, 0, -10,
-    0, 0, 5, 5, 5, 5, 0, -5,
-    -5, 0, 5, 5, 5, 5, 0, -5,
-    -10, 0, 5, 5, 5, 5, 0, -10,
-    -10, 0, 0, 0, 0, 0, 0, -10,
-    -20, -10, -10, -5, -5, -10, -10, -20]
-
-kingTable = [
-    20, 30, 10, 0, 0, 10, 30, 20,
-    20, 20, 0, 0, 0, 0, 20, 20,
-    -10, -20, -20, -20, -20, -20, -20, -10,
-    -20, -30, -30, -40, -40, -30, -30, -20,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30,
-    -30, -40, -40, -50, -50, -40, -40, -30]
-
-kingEndTable = [
-    -50, -30, -30, -30, -30, -30, -30, -50,
-    -30, -30, 0, 0, 0, 0, -30,-30,
-    -30, -10, 20, 30, 30, 20, -10, -30,
-    -30, -10, 30, 40, 40, 30, -10, -30,
-    -30, -10, 30, 40, 40, 30, -10, -30,
-    -30, -10, 20, 30, 30, 20, -10, -30,
-    -30, -20, -10, 0, 0, -10, -20, -30,
-    -50, -40, -30, -20, -20, -30, -40, -50]
-
 def evaluateScore():
     
     if board.is_checkmate():
@@ -79,6 +8,77 @@ def evaluateScore():
             return -9999
         else:
             return 9999
+
+    #Score pieces based on their position. Piece square tables can be found online
+    pawnTable = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, 10, 10, -20, -20, 10, 10, 5,
+        5, -5, -10, 0, 0, -10, -5, 5,
+        0, 0, 0, 20, 20, 0, 0, 0,
+        5, 5, 10, 25, 25, 10, 5, 5,
+        10, 10, 20, 30, 30, 20, 10, 10,
+        50, 50, 50, 50, 50, 50, 50, 50,
+        0, 0, 0, 0, 0, 0, 0, 0]
+
+    knightTable = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 0, 15, 20, 20, 15, 0, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 0, 10, 15, 15, 10, 0, -30,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50]
+
+    bishopTable = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 0, 10, 10, 10, 10, 0, -10,
+        -10, 5, 5, 10, 10, 5, 5, -10,
+        -10, 0, 5, 10, 10, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20]
+
+    rookTable = [
+        0, 0, 0, 5, 5, 0, 0, 0,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        5, 10, 10, 10, 10, 10, 10, 5,
+        0, 0, 0, 0, 0, 0, 0, 0]
+
+    queenTable = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 5, 0, 0, 0, 0, -10,
+        -10, 5, 5, 5, 5, 5, 0, -10,
+        0, 0, 5, 5, 5, 5, 0, -5,
+        -5, 0, 5, 5, 5, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20]
+
+    kingTable = [
+        20, 30, 10, 0, 0, 10, 30, 20,
+        20, 20, 0, 0, 0, 0, 20, 20,
+        -10, -20, -20, -20, -20, -20, -20, -10,
+        -20, -30, -30, -40, -40, -30, -30, -20,
+        -30, -40, -40, -50, -50, -40, -40, -30,
+        -30, -40, -40, -50, -50, -40, -40, -30,
+        -30, -40, -40, -50, -50, -40, -40, -30,
+        -30, -40, -40, -50, -50, -40, -40, -30]
+
+    kingEndTable = [
+        -50, -30, -30, -30, -30, -30, -30, -50,
+        -30, -30, 0, 0, 0, 0, -30,-30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -50, -40, -30, -20, -20, -30, -40, -50]
 
     #Number of each pieces based on current board state
     whitePawn = len(board.pieces(chess.PAWN, chess.WHITE))
@@ -99,7 +99,7 @@ def evaluateScore():
     queenScore = sum([queenTable[i] for i in board.pieces(chess.QUEEN, chess.WHITE)]) - sum([queenTable[chess.square_mirror(i)] for i in board.pieces(chess.QUEEN, chess.BLACK)])
     
     if 100 * whitePawn + 300 * whiteKnight + 300 * whiteBishop + 500 * whiteRook + 900 * whiteQueen < 1400 and 100 * blackPawn + 300 * blackKnight + 300 * blackBishop + 500 * blackRook + 900 * blackQueen < 1400:
-        #If materialScore on both sides are less than 1400 (queen + rook), use kingEndTable
+        #If materialScore on both sides are less than 1400 (queen + rook = 900 + 500 = 1400), use kingEndTable
         kingScore = sum([kingEndTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingEndTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
     else:
         kingScore = sum([kingTable[i] for i in board.pieces(chess.KING, chess.WHITE)]) - sum([kingTable[chess.square_mirror(i)] for i in board.pieces(chess.KING, chess.BLACK)])
@@ -181,10 +181,14 @@ def selectMove(depth):
     alpha = -100000 #Alpha is bestScore for the maximizing player (White). Initialize as worst possible White score
     beta = 100000 #Beta is bestScore for the minimizing player (Black). Initialize as worst possible Black score
 
+    #For AI vs AI, if repeated moves, increase depth. For human vs AI, you can comment these 2 lines since humans usually won't repeat moves
+    if len(moveList) >= 4 and moveList[-4][:2] == moveList[-2][-2:] and moveList[-4][-2:] == moveList[-2][:2] and moveList[-3][:2] == moveList[-1][-2:] and moveList[-3][-2:] == moveList[-1][:2]:
+        depth += 1
+    
     for move in board.legal_moves:
         if board.is_castling(move): #Don't need to check castling rights if the move is a castle
             board.push(move)
-            if board.turn and len(board.pieces(chess.BISHOP, chess.BLACK)) == 1: #Subtract 50 (Value of half pawn) if AI has only 1 bishop
+            if board.turn and len(board.pieces(chess.BISHOP, chess.BLACK)) == 1: #Subtract 50 (Value of half pawn) if player has only 1 bishop
                 moveScore = -negamax(-beta, -alpha, depth - 1) - 50
             elif not board.turn and len(board.pieces(chess.BISHOP, chess.WHITE)) == 1:
                 moveScore = -negamax(-beta, -alpha, depth - 1) - 50
@@ -201,22 +205,23 @@ def selectMove(depth):
                 board.push(move)
                 castleRightsAfter = board.has_castling_rights(chess.BLACK)
                 numBishops = len(board.pieces(chess.BISHOP, chess.BLACK))
-            if numBishops == 1 and castleRightsBefore and not castleRightsAfter: #Subtract 100 (Value of 1 pawn) if AI has only 1 bishop and if the move prevents castling
+            if numBishops == 1 and castleRightsBefore and not castleRightsAfter: #Subtract 100 (Value of 1 pawn) if player has only 1 bishop and if the move prevents castling
                 moveScore = -negamax(-beta, -alpha, depth - 1) - 100
             elif castleRightsBefore and not castleRightsAfter: #Subtract 50 (Value of half pawn) if the move prevents castling
                 moveScore = -negamax(-beta, -alpha, depth - 1) - 50
             else:
                 moveScore = -negamax(-beta, -alpha, depth - 1)
-        board.pop()
         if moveScore > bestScore:
             bestScore = moveScore
             bestMove = move
         alpha = max(alpha, moveScore)
+        board.pop()
 
     return bestMove
 
 #Main Function
 board = chess.Board()
+moveList = []
 display.start(board.fen())
 printEndMessage = False
 
@@ -228,6 +233,7 @@ while not display.checkForQuit():
         #display.update(board.fen())
         AImove = selectMove(3) #Increase number for harder AI at the cost of it taking longer
         board.push(AImove)
+        moveList.append(AImove.uci())
         display.update(board.fen())
         print(AImove)
     elif not printEndMessage:
